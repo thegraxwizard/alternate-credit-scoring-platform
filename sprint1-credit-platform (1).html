@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CreditScore — Alternative Credit Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --blue: #1a56db; --blue-light: #e8f0fe; --blue-dark: #1239a0;
+    --green: #059669; --green-light: #d1fae5;
+    --slate: #0f172a; --slate-mid: #334155; --muted: #64748b;
+    --border: #e2e8f0; --bg: #f8fafc; --white: #ffffff;
+    --radius: 14px; --shadow: 0 4px 20px rgba(15,23,42,0.08); --shadow-lg: 0 12px 40px rgba(15,23,42,0.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--slate); min-height: 100vh; }
+  nav { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 8px rgba(0,0,0,0.05); }
+  .logo { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: var(--blue); display: flex; align-items: center; gap: 8px; }
+  .logo-icon { width: 32px; height: 32px; background: var(--blue); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.9rem; }
+  .nav-links { display: flex; align-items: center; gap: 6px; }
+  .nav-btn { padding: 7px 16px; border-radius: 8px; font-family: 'Nunito', sans-serif; font-size: 0.85rem; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; }
+  .nav-btn-ghost { background: transparent; color: var(--muted); }
+  .nav-btn-ghost:hover { background: var(--bg); color: var(--slate); }
+  .nav-btn-primary { background: var(--blue); color: white; }
+  .nav-btn-primary:hover { background: var(--blue-dark); }
+  .nav-btn-danger { background: transparent; color: #ef4444; }
+  .nav-btn-danger:hover { background: #fef2f2; }
+  .nav-user { display: flex; align-items: center; gap: 8px; padding: 4px 12px; background: var(--bg); border-radius: 20px; font-size: 0.83rem; color: var(--muted); }
+  .nav-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--blue); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; }
+  .page { display: none; }
+  .page.active { display: block; animation: fadeIn 0.25s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .auth-wrap { min-height: calc(100vh - 60px); display: flex; align-items: center; justify-content: center; padding: 40px 20px; background: linear-gradient(135deg, #f0f4ff 0%, #f8fafc 70%); }
+  .auth-card { background: white; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow-lg); padding: 40px 36px; width: 100%; max-width: 420px; }
+  .auth-header { text-align: center; margin-bottom: 28px; }
+  .auth-title { font-family: 'Playfair Display', serif; font-size: 1.85rem; margin-bottom: 6px; }
+  .auth-sub { color: var(--muted); font-size: 0.87rem; }
+  .form-group { margin-bottom: 18px; }
+  .form-group label { display: block; font-size: 0.82rem; font-weight: 700; color: var(--slate-mid); margin-bottom: 6px; letter-spacing: 0.02em; }
+  .form-control { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 9px; font-family: 'Nunito', sans-serif; font-size: 0.9rem; color: var(--slate); background: white; transition: border-color 0.2s, box-shadow 0.2s; outline: none; }
+  .form-control:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26,86,219,0.1); }
+  .form-control.err { border-color: #ef4444; }
+  .err-text { color: #ef4444; font-size: 0.78rem; margin-top: 4px; }
+  .btn-full { width: 100%; padding: 12px; background: var(--blue); color: white; border: none; border-radius: 9px; font-family: 'Nunito', sans-serif; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s; margin-top: 4px; }
+  .btn-full:hover { background: var(--blue-dark); transform: translateY(-1px); }
+  .auth-footer { text-align: center; margin-top: 18px; font-size: 0.85rem; color: var(--muted); }
+  .link-btn { color: var(--blue); font-weight: 700; cursor: pointer; background: none; border: none; font-family: inherit; font-size: inherit; }
+  .link-btn:hover { text-decoration: underline; }
+  .alert { padding: 10px 14px; border-radius: 8px; font-size: 0.83rem; margin-bottom: 16px; }
+  .alert-err { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+  .alert-ok { background: var(--green-light); color: var(--green); border: 1px solid #6ee7b7; }
+  .landing-hero { background: linear-gradient(135deg, #e8f0fe 0%, #f8fafc 60%); padding: 80px 24px 60px; text-align: center; border-bottom: 1px solid var(--border); }
+  .hero-badge { display: inline-block; background: var(--blue-light); color: var(--blue); padding: 5px 16px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; margin-bottom: 20px; letter-spacing: 0.05em; }
+  .hero-title { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 5vw, 3rem); max-width: 640px; margin: 0 auto 14px; line-height: 1.25; }
+  .hero-sub { color: var(--muted); max-width: 500px; margin: 0 auto 36px; font-size: 1rem; line-height: 1.7; }
+  .hero-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn-hero-primary { padding: 13px 28px; background: var(--blue); color: white; border: none; border-radius: 10px; font-family: 'Nunito', sans-serif; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .btn-hero-primary:hover { background: var(--blue-dark); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(26,86,219,0.3); }
+  .btn-hero-outline { padding: 13px 28px; background: white; color: var(--blue); border: 1.5px solid var(--blue); border-radius: 10px; font-family: 'Nunito', sans-serif; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .btn-hero-outline:hover { background: var(--blue-light); }
+  .features-section { padding: 60px 24px; max-width: 1000px; margin: 0 auto; }
+  .sec-title { font-family: 'Playfair Display', serif; font-size: 1.7rem; text-align: center; margin-bottom: 6px; }
+  .sec-sub { text-align: center; color: var(--muted); font-size: 0.88rem; margin-bottom: 36px; }
+  .feat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+  .feat-card { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 24px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+  .feat-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 14px; }
+  .feat-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 6px; }
+  .feat-desc { color: var(--muted); font-size: 0.82rem; line-height: 1.6; }
+  .how-section { background: var(--bg); border-top: 1px solid var(--border); padding: 60px 24px; }
+  .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 700px; margin: 0 auto; }
+  .step { text-align: center; }
+  .step-num { width: 52px; height: 52px; border-radius: 50%; background: var(--blue); color: white; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 1.3rem; margin: 0 auto 14px; }
+  .step-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 6px; }
+  .step-desc { color: var(--muted); font-size: 0.82rem; }
+  .cta-section { background: var(--blue); padding: 56px 24px; text-align: center; }
+  .cta-title { color: white; font-family: 'Playfair Display', serif; font-size: 1.9rem; margin-bottom: 10px; }
+  .cta-sub { color: rgba(255,255,255,0.7); margin-bottom: 28px; font-size: 0.95rem; }
+  .btn-cta { padding: 13px 28px; background: white; color: var(--blue); border: none; border-radius: 10px; font-family: 'Nunito', sans-serif; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .btn-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+  .dashboard-wrap { padding: 36px 28px; max-width: 1050px; margin: 0 auto; }
+  .dash-greeting { margin-bottom: 30px; }
+  .dash-greeting h1 { font-family: 'Playfair Display', serif; font-size: 1.9rem; margin-bottom: 4px; }
+  .dash-greeting p { color: var(--muted); font-size: 0.9rem; }
+  .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 28px; }
+  .stat-card { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+  .stat-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 8px; }
+  .stat-val { font-family: 'Playfair Display', serif; font-size: 1.9rem; color: var(--slate); line-height: 1.1; }
+  .stat-sub { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
+  .dash-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 22px; }
+  .dash-card { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 26px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+  .dash-card-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; margin-bottom: 18px; }
+  .no-score-box { background: var(--blue-light); border: 1px solid #bfdbfe; border-radius: 10px; padding: 22px; display: flex; align-items: center; gap: 16px; }
+  .no-score-icon { font-size: 2.2rem; }
+  .no-score-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; }
+  .no-score-desc { font-size: 0.82rem; color: var(--muted); margin-bottom: 12px; }
+  .btn-sm { padding: 8px 18px; background: var(--blue); color: white; border: none; border-radius: 8px; font-family: 'Nunito', sans-serif; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+  .btn-sm:hover { background: var(--blue-dark); }
+  .action-list { display: flex; flex-direction: column; gap: 10px; }
+  .action-item { display: flex; align-items: center; gap: 12px; padding: 13px 14px; background: var(--bg); border-radius: 10px; border: 1px solid var(--border); cursor: pointer; transition: all 0.15s; }
+  .action-item:hover { background: var(--blue-light); border-color: #bfdbfe; }
+  .action-icon { width: 38px; height: 38px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+  .action-title { font-weight: 700; font-size: 0.87rem; margin-bottom: 2px; }
+  .action-desc { font-size: 0.76rem; color: var(--muted); }
+  .action-arrow { margin-left: auto; color: var(--muted); font-size: 1.1rem; }
+  .info-row { font-size: 0.82rem; color: var(--muted); line-height: 1.9; }
+  .info-row strong { color: var(--slate); }
+  .sprint-tag { display: inline-block; background: #ede9fe; color: #7c3aed; padding: 2px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; margin-bottom: 10px; }
+  @media (max-width: 640px) { .auth-card { padding: 30px 20px; } .dash-grid { grid-template-columns: 1fr; } .steps-grid { grid-template-columns: 1fr; gap: 16px; } }
+</style>
+</head>
+<body>
+<nav id="navbar">
+  <div class="logo"><div class="logo-icon">₹</div>CreditScore</div>
+  <div class="nav-links" id="nav-links">
+    <button class="nav-btn nav-btn-ghost" onclick="showPage('landing')">Home</button>
+    <button class="nav-btn nav-btn-ghost" onclick="showPage('login')">Login</button>
+    <button class="nav-btn nav-btn-primary" onclick="showPage('register')">Get Started</button>
+  </div>
+</nav>
+
+<div class="page active" id="page-landing">
+  <div class="landing-hero">
+    <div class="hero-badge">🚀 Sprint 1 · FinTech Agile Project</div>
+    <h1 class="hero-title">Credit Scoring for the Credit-Invisible</h1>
+    <p class="hero-sub">Students, freelancers & gig workers deserve fair access to credit. Get your alternative credit score — no CIBIL required.</p>
+    <div class="hero-btns">
+      <button class="btn-hero-primary" onclick="showPage('register')">Get My Score →</button>
+      <button class="btn-hero-outline" onclick="showPage('login')">Sign In</button>
+    </div>
+  </div>
+  <div class="features-section">
+    <h2 class="sec-title">Why CreditScore?</h2>
+    <p class="sec-sub">Designed for those left behind by traditional finance</p>
+    <div class="feat-grid">
+      <div class="feat-card"><div class="feat-icon" style="background:#e8f0fe">🎯</div><p class="feat-title">No CIBIL Required</p><p class="feat-desc">Scored on real financial behaviour — not traditional history.</p></div>
+      <div class="feat-card"><div class="feat-icon" style="background:#d1fae5">⚡</div><p class="feat-title">Instant Score</p><p class="feat-desc">Submit details and receive your credit score in seconds.</p></div>
+      <div class="feat-card"><div class="feat-icon" style="background:#fef3c7">🔒</div><p class="feat-title">Secure & Private</p><p class="feat-desc">Protected with encrypted local storage and session auth.</p></div>
+      <div class="feat-card"><div class="feat-icon" style="background:#ede9fe">📊</div><p class="feat-title">Detailed Breakdown</p><p class="feat-desc">See exactly how income, savings & payments affect your score.</p></div>
+    </div>
+  </div>
+  <div class="how-section">
+    <h2 class="sec-title">How It Works</h2>
+    <p class="sec-sub">Three steps to your alternative credit score</p>
+    <div class="steps-grid" style="margin-top:32px">
+      <div class="step"><div class="step-num">01</div><p class="step-title">Register</p><p class="step-desc">Create your account securely in under a minute.</p></div>
+      <div class="step"><div class="step-num">02</div><p class="step-title">Submit Data</p><p class="step-desc">Fill in income, savings & bill payment details.</p></div>
+      <div class="step"><div class="step-num">03</div><p class="step-title">Get Scored</p><p class="step-desc">Receive your score and risk classification instantly.</p></div>
+    </div>
+  </div>
+  <div class="cta-section">
+    <h2 class="cta-title">Ready to get your score?</h2>
+    <p class="cta-sub">Join credit-invisible users gaining financial access</p>
+    <button class="btn-cta" onclick="showPage('register')">Create Free Account →</button>
+  </div>
+</div>
+
+<div class="page" id="page-register">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="sprint-tag">Sprint 1 · User Story #1</div>
+        <h1 class="auth-title">Create Account</h1>
+        <p class="auth-sub">Start your alternative credit journey today</p>
+      </div>
+      <div id="reg-alert" class="alert" style="display:none"></div>
+      <div class="form-group"><label>FULL NAME</label><input class="form-control" id="reg-name" type="text" placeholder="e.g. Riya Sharma"/><p class="err-text" id="err-name" style="display:none"></p></div>
+      <div class="form-group"><label>EMAIL ADDRESS</label><input class="form-control" id="reg-email" type="email" placeholder="riya@email.com"/><p class="err-text" id="err-email" style="display:none"></p></div>
+      <div class="form-group"><label>PASSWORD</label><input class="form-control" id="reg-pass" type="password" placeholder="Minimum 6 characters"/><p class="err-text" id="err-pass" style="display:none"></p></div>
+      <div class="form-group"><label>CONFIRM PASSWORD</label><input class="form-control" id="reg-pass2" type="password" placeholder="Re-enter password"/><p class="err-text" id="err-pass2" style="display:none"></p></div>
+      <button class="btn-full" onclick="handleRegister()">Create Account</button>
+      <p class="auth-footer">Already have an account? <button class="link-btn" onclick="showPage('login')">Sign in</button></p>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="page-login">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="sprint-tag">Sprint 1 · User Story #2</div>
+        <h1 class="auth-title">Welcome Back</h1>
+        <p class="auth-sub">Sign in to your CreditScore account</p>
+      </div>
+      <div style="background:var(--blue-light);border-radius:8px;padding:10px 14px;font-size:0.8rem;color:var(--blue);margin-bottom:18px;line-height:1.7">💡 <strong>Demo:</strong> Use any account you created via Register, or try<br/><strong>demo@credit.com</strong> / <strong>demo123</strong></div>
+      <div id="login-alert" class="alert" style="display:none"></div>
+      <div class="form-group"><label>EMAIL ADDRESS</label><input class="form-control" id="login-email" type="email" placeholder="your@email.com"/><p class="err-text" id="err-lemail" style="display:none"></p></div>
+      <div class="form-group"><label>PASSWORD</label><input class="form-control" id="login-pass" type="password" placeholder="Enter password"/><p class="err-text" id="err-lpass" style="display:none"></p></div>
+      <button class="btn-full" onclick="handleLogin()">Sign In</button>
+      <p class="auth-footer">Don't have an account? <button class="link-btn" onclick="showPage('register')">Register now</button></p>
+    </div>
+  </div>
+</div>
+
+<div class="page" id="page-dashboard">
+  <div class="dashboard-wrap">
+    <div class="dash-greeting">
+      <div class="sprint-tag">Sprint 1 · User Story #3</div>
+      <h1 id="dash-greeting-text">Hello! 👋</h1>
+      <p>Here's your account overview. Complete your financial profile to get your credit score.</p>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><p class="stat-label">Credit Score</p><p class="stat-val" id="dash-score" style="color:var(--muted);font-size:1rem">Not assessed yet</p><p class="stat-sub">Submit financial data to get scored</p></div>
+      <div class="stat-card"><p class="stat-label">Risk Category</p><p class="stat-val" id="dash-risk" style="color:var(--muted);font-size:1rem">—</p></div>
+      <div class="stat-card"><p class="stat-label">Account Status</p><p class="stat-val" style="font-size:1rem;color:var(--green)">✅ Active</p><p class="stat-sub" id="dash-joined">—</p></div>
+      <div class="stat-card"><p class="stat-label">Sprint</p><p class="stat-val" style="font-size:1.1rem">Sprint 1</p><p class="stat-sub">Registration · Login · Dashboard</p></div>
+    </div>
+    <div class="dash-grid">
+      <div class="dash-card">
+        <h2 class="dash-card-title">Credit Score Overview</h2>
+        <div class="no-score-box">
+          <div class="no-score-icon">📊</div>
+          <div>
+            <p class="no-score-title">No score yet — Sprint 2 coming next!</p>
+            <p class="no-score-desc">Financial data input, validation & score calculation will be built in Sprint 2. Your profile is ready.</p>
+            <button class="btn-sm" onclick="alert('Sprint 2 feature — coming soon! 🚀')">Submit Financial Data →</button>
+          </div>
+        </div>
+        <div class="info-row" style="margin-top:20px">
+          <strong>Name:</strong> <span id="dash-name-info">—</span><br/>
+          <strong>Email:</strong> <span id="dash-email-info">—</span><br/>
+          <strong>Role:</strong> User<br/>
+          <strong>Sprint 2 features:</strong> Financial Input, Validation, Score Calculation<br/>
+          <strong>Sprint 3 features:</strong> Score Display, Risk Classification, Admin Dashboard
+        </div>
+      </div>
+      <div class="dash-card">
+        <h2 class="dash-card-title">Quick Actions</h2>
+        <div class="action-list">
+          <div class="action-item" onclick="alert('Sprint 2 feature — Financial Data Input 📝')"><div class="action-icon" style="background:#e8f0fe">📝</div><div><p class="action-title">Submit Finances</p><p class="action-desc">Sprint 2 · Add income & savings data</p></div><span class="action-arrow">›</span></div>
+          <div class="action-item" onclick="alert('Sprint 3 feature — Credit Score Display 📈')"><div class="action-icon" style="background:#d1fae5">📈</div><div><p class="action-title">View Full Score</p><p class="action-desc">Sprint 3 · Detailed score breakdown</p></div><span class="action-arrow">›</span></div>
+          <div class="action-item" onclick="alert('Sprint 3 feature — Admin Dashboard 🏢')"><div class="action-icon" style="background:#fef3c7">🏢</div><div><p class="action-title">Admin Dashboard</p><p class="action-desc">Sprint 3 · View all users & scores</p></div><span class="action-arrow">›</span></div>
+          <div class="action-item" onclick="handleLogout()" style="border-color:#fecaca"><div class="action-icon" style="background:#fef2f2">🚪</div><div><p class="action-title" style="color:#ef4444">Logout</p><p class="action-desc">Sign out of your account</p></div><span class="action-arrow">›</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function getUsers() { return JSON.parse(localStorage.getItem('cs_users') || '[]'); }
+  function saveUsers(u) { localStorage.setItem('cs_users', JSON.stringify(u)); }
+  function getSession() { return JSON.parse(localStorage.getItem('cs_session') || 'null'); }
+  function saveSession(u) { localStorage.setItem('cs_session', JSON.stringify(u)); }
+  function clearSession() { localStorage.removeItem('cs_session'); }
+  (function seedDemo() { const users = getUsers(); if (!users.find(u => u.email === 'demo@credit.com')) { users.push({ name: 'Demo User', email: 'demo@credit.com', password: 'demo123', joinedAt: new Date().toLocaleDateString('en-IN') }); saveUsers(users); } })();
+  function showPage(name) { document.querySelectorAll('.page').forEach(p => p.classList.remove('active')); document.getElementById('page-' + name).classList.add('active'); updateNav(name); clearAlerts(); window.scrollTo(0, 0); }
+  function updateNav(page) { const session = getSession(); const linksEl = document.getElementById('nav-links'); if (session) { linksEl.innerHTML = `<div class="nav-user"><div class="nav-avatar">${session.name[0].toUpperCase()}</div>${session.name}</div><button class="nav-btn nav-btn-ghost" onclick="showPage('dashboard')">Dashboard</button><button class="nav-btn nav-btn-danger" onclick="handleLogout()">Logout</button>`; } else { linksEl.innerHTML = `<button class="nav-btn nav-btn-ghost" onclick="showPage('landing')">Home</button><button class="nav-btn nav-btn-ghost" onclick="showPage('login')">Login</button><button class="nav-btn nav-btn-primary" onclick="showPage('register')">Get Started</button>`; } }
+  function clearAlerts() { ['reg-alert','login-alert'].forEach(id => { const el = document.getElementById(id); if (el) { el.style.display = 'none'; el.textContent = ''; } }); ['err-name','err-email','err-pass','err-pass2','err-lemail','err-lpass'].forEach(id => { const el = document.getElementById(id); if (el) { el.style.display = 'none'; el.textContent = ''; } }); ['reg-name','reg-email','reg-pass','reg-pass2','login-email','login-pass'].forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('err'); }); }
+  function showErr(f, e, m) { document.getElementById(f).classList.add('err'); const el = document.getElementById(e); el.textContent = m; el.style.display = 'block'; }
+  function showAlert(id, msg, type) { const el = document.getElementById(id); el.textContent = msg; el.className = 'alert alert-' + type; el.style.display = 'block'; }
+  function handleRegister() { clearAlerts(); const name = document.getElementById('reg-name').value.trim(); const email = document.getElementById('reg-email').value.trim().toLowerCase(); const pass = document.getElementById('reg-pass').value; const pass2 = document.getElementById('reg-pass2').value; let valid = true; if (!name) { showErr('reg-name','err-name','Name is required'); valid = false; } if (!email) { showErr('reg-email','err-email','Email is required'); valid = false; } else if (!/\S+@\S+\.\S+/.test(email)) { showErr('reg-email','err-email','Invalid email format'); valid = false; } if (!pass) { showErr('reg-pass','err-pass','Password is required'); valid = false; } else if (pass.length < 6) { showErr('reg-pass','err-pass','Minimum 6 characters'); valid = false; } if (pass !== pass2) { showErr('reg-pass2','err-pass2','Passwords do not match'); valid = false; } if (!valid) return; const users = getUsers(); if (users.find(u => u.email === email)) { showAlert('reg-alert', '❌ This email is already registered. Please login.', 'err'); return; } const newUser = { name, email, password: pass, joinedAt: new Date().toLocaleDateString('en-IN') }; users.push(newUser); saveUsers(users); showAlert('reg-alert', '✅ Account created successfully! Redirecting...', 'ok'); saveSession(newUser); setTimeout(() => { loadDashboard(newUser); showPage('dashboard'); }, 1200); }
+  function handleLogin() { clearAlerts(); const email = document.getElementById('login-email').value.trim().toLowerCase(); const pass = document.getElementById('login-pass').value; let valid = true; if (!email) { showErr('login-email','err-lemail','Email is required'); valid = false; } if (!pass) { showErr('login-pass','err-lpass','Password is required'); valid = false; } if (!valid) return; const users = getUsers(); const user = users.find(u => u.email === email && u.password === pass); if (!user) { showAlert('login-alert', '❌ Invalid email or password. Please try again.', 'err'); return; } saveSession(user); loadDashboard(user); showPage('dashboard'); }
+  function handleLogout() { clearSession(); showPage('landing'); }
+  function loadDashboard(user) { document.getElementById('dash-greeting-text').textContent = `Hello, ${user.name.split(' ')[0]} 👋`; document.getElementById('dash-name-info').textContent = user.name; document.getElementById('dash-email-info').textContent = user.email; document.getElementById('dash-joined').textContent = `Joined: ${user.joinedAt}`; updateNav('dashboard'); }
+  (function init() { const session = getSession(); if (session) { loadDashboard(session); showPage('dashboard'); } })();
+  document.addEventListener('keydown', e => { if (e.key !== 'Enter') return; const active = document.querySelector('.page.active').id; if (active === 'page-register') handleRegister(); if (active === 'page-login') handleLogin(); });
+</script>
+</body>
+</html>
